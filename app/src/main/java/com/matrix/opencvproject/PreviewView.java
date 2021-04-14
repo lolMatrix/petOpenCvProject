@@ -1,35 +1,64 @@
 package com.matrix.opencvproject;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
+import android.graphics.Rect;
 import android.hardware.Camera;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PreviewView extends SurfaceView implements SurfaceHolder.Callback {
 
+    private boolean isReady = false;
     private SurfaceHolder holder;
     private Camera camera;
+    private MainActivity context;
+    private List<Rect> rects = new ArrayList<>();
+    private Paint paint;
 
-    public PreviewView(Context context, Camera camera) {
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        synchronized (this) {
+            for(Rect rect : rects)//TODO: запульнуть как то прямоугольник. Сейчас, из-за того что камера занимает канвас все оч плохо
+                canvas.drawRect(rect, paint);
+            Log.d("Mmm...", "onDraw: yes");
+        }
+        super.onDraw(canvas);
+    }
+
+    public PreviewView(MainActivity context, Camera camera) {
         super(context);
+        this.context = context;
         this.camera = camera;
 
         holder = getHolder();
         holder.addCallback(this);
-
-        holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        setSecure(true);
+        holder.setFormat(PixelFormat.TRANSLUCENT);
+        paint = new Paint();
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(3);
     }
 
     @Override
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
         try {
             camera.setPreviewDisplay(holder);
+            camera.setPreviewCallback(new Preview(context, this));
             camera.startPreview();
-            camera.setPreviewCallback(new Preview());
+            isReady = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -53,4 +82,13 @@ public class PreviewView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceDestroyed(@NonNull SurfaceHolder holder) {
 
     }
+
+    public void drawRect(int left, int top, int right, int bottom) {
+        synchronized(this) {
+            rects.clear();
+            Rect rect = new Rect(left, top, right, bottom);
+            rects.add(rect);
+        }
+    }
+
 }

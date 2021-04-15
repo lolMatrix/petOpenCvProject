@@ -1,6 +1,7 @@
 package com.matrix.opencvproject;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -8,8 +9,10 @@ import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import org.opencv.dnn.Dnn;
 import org.opencv.dnn.Net;
@@ -22,7 +25,7 @@ import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
-    private FrameLayout preview;
+    private ConstraintLayout preview;
     private Camera mainCamera;
     private PreviewView view;
     private ImageView image;
@@ -44,7 +47,11 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
         mainCamera = Camera.open(0);
         mainCamera.setDisplayOrientation(90);
-        preview.addView(view = new PreviewView(this, mainCamera));
+        CameraOverlay overlay = findViewById(R.id.overlay);
+        view = new PreviewView(this, mainCamera, overlay);
+        //preview.addView(overlay);
+        preview.addView(view);
+        overlay.bringToFront();
     }
 
     public void setPreview(Bitmap image){
@@ -77,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         if(mainCamera != null){
+            mainCamera.stopPreview();
             mainCamera.release();
             mainCamera = null;
         }

@@ -15,6 +15,7 @@ import android.icu.text.Normalizer2;
 import android.util.Log;
 import android.view.Display;
 import android.view.SurfaceHolder;
+import android.widget.Toast;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
@@ -53,6 +54,7 @@ public class Preview implements Camera.PreviewCallback {
 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
+        view.clearOverlay();
         Camera.Parameters parameters = camera.getParameters();
         int width = parameters.getPreviewSize().width;
         int height = parameters.getPreviewSize().height;
@@ -94,17 +96,17 @@ public class Preview implements Camera.PreviewCallback {
                         Point classIdPoint = minmax.maxLoc;
 
 
-                        int x = (int) (row.get(0,0)[0] * cols);
-                        int y = (int) (row.get(0, 1)[0] * rows);
-                        int w = (int) (row.get(0, 2)[0] * cols);
-                        int h = (int) (row.get(0, 3)[0] * rows);
+                        int x = (int)Math.round(row.get(0,0)[0] * cols);
+                        int y = (int) Math.round(row.get(0, 1)[0] * rows);
+                        int w = (int) Math.round(row.get(0, 2)[0] * cols);
+                        int h = (int) Math.round(row.get(0, 3)[0] * rows);
                         int left = x - w / 2;
                         int top = y - h / 2;
                         int right = x + w / 2;
                         int bottom = y + h / 2;
 
-                        view.drawRect(left, top, right, bottom);
-                        Log.d("Mmm...", "find");
+                        view.drawRect(bottom, right, top, left);
+                        Toast.makeText(context, "Find", Toast.LENGTH_SHORT).show();
                     }
                 }
             }

@@ -26,22 +26,14 @@ public class PreviewView extends SurfaceView implements SurfaceHolder.Callback {
     private MainActivity context;
     private List<Rect> rects = new ArrayList<>();
     private Paint paint;
+    private CameraOverlay overlay;
 
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-        synchronized (this) {
-            for(Rect rect : rects)//TODO: запульнуть как то прямоугольник. Сейчас, из-за того что камера занимает канвас все оч плохо
-                canvas.drawRect(rect, paint);
-            Log.d("Mmm...", "onDraw: yes");
-        }
-        super.onDraw(canvas);
-    }
-
-    public PreviewView(MainActivity context, Camera camera) {
+    public PreviewView(MainActivity context, Camera camera, CameraOverlay overlay) {
         super(context);
         this.context = context;
         this.camera = camera;
+        this.overlay = overlay;
 
         holder = getHolder();
         holder.addCallback(this);
@@ -50,6 +42,7 @@ public class PreviewView extends SurfaceView implements SurfaceHolder.Callback {
         paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(3);
+
     }
 
     @Override
@@ -84,11 +77,15 @@ public class PreviewView extends SurfaceView implements SurfaceHolder.Callback {
     }
 
     public void drawRect(int left, int top, int right, int bottom) {
-        synchronized(this) {
-            rects.clear();
-            Rect rect = new Rect(left, top, right, bottom);
-            rects.add(rect);
-        }
+        int scaleX = getWidth();
+        int scaleY = getHeight();
+        Rect rect = new Rect(left, top, right, bottom);
+
+
+        overlay.setDrawInStack(rect);
     }
 
+    public void clearOverlay() {
+        overlay.clearDrawStack();
+    }
 }

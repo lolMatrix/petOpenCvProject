@@ -19,8 +19,15 @@
             android:layout_height="match_parent"
             android:id="@+id/overlay"
             >
+
             <requestFocus></requestFocus>
         </com.matrix.opencvproject.CameraOverlay>
+        <Button
+            android:layout_marginBottom="10dp"
+            android:id="@+id/TakeAPicture"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/takePicture" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <ImageView
@@ -28,11 +35,5 @@
         android:layout_height="wrap_content"
         android:id="@+id/yes"
         />
-
-    <Button
-        android:id="@+id/TakePicture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/takePicture" />
 
 </LinearLayout>

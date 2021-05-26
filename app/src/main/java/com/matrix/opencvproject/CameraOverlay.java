@@ -21,6 +21,7 @@ public class CameraOverlay extends View {
         defaultPaint.setStyle(Paint.Style.STROKE);
         defaultPaint.setStrokeWidth(3);
         defaultPaint.setARGB(255, 255, 0, 255);
+        setDrawingCacheEnabled(true);
     }
 
 

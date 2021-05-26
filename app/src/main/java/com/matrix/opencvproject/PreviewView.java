@@ -14,19 +14,21 @@ import android.view.SurfaceView;
 
 import androidx.annotation.NonNull;
 
+import org.opencv.dnn.Dnn;
+import org.opencv.dnn.Net;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PreviewView extends SurfaceView implements SurfaceHolder.Callback {
-
-    private boolean isReady = false;
     private SurfaceHolder holder;
     private Camera camera;
     private MainActivity context;
     private List<Rect> rects = new ArrayList<>();
     private Paint paint;
     private CameraOverlay overlay;
+    private Preview preview;
 
 
     public PreviewView(MainActivity context, Camera camera, CameraOverlay overlay) {
@@ -49,9 +51,13 @@ public class PreviewView extends SurfaceView implements SurfaceHolder.Callback {
     public void surfaceCreated(@NonNull SurfaceHolder holder) {
         try {
             camera.setPreviewDisplay(holder);
-            camera.setPreviewCallback(new Preview(context, this));
+
+            Net deepDarkFantasyNet = Dnn.readNetFromDarknet(MainActivity.getPath("yolov2-tiny.cfg", context), MainActivity.getPath("yolov2-tiny.weights", context));
+            NeuralPictureHandler handler = new NeuralPictureHandler(deepDarkFantasyNet);
+
+            preview = new Preview(context, this, handler);
+            camera.setPreviewCallback(preview);
             camera.startPreview();
-            isReady = true;
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -76,13 +82,12 @@ public class PreviewView extends SurfaceView implements SurfaceHolder.Callback {
 
     }
 
-    public void drawRect(int left, int top, int right, int bottom) {
-        int scaleX = getWidth();
-        int scaleY = getHeight();
-        Rect rect = new Rect(left, top, right, bottom);
-
-
+    public void drawRect(Rect rect) {
         overlay.setDrawInStack(rect);
+    }
+
+    public NeuralPictureHandler getNeuralHandler(){
+        return preview.getHandler();
     }
 
     public void clearOverlay() {
